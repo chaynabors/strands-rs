@@ -210,10 +210,19 @@ impl From<&ToolPolicy> for AnthropicToolChoice {
 
 impl From<&ToolSpec> for AnthropicTool<'static> {
     fn from(spec: &ToolSpec) -> Self {
+        tracing::error!(
+            "{}",
+            serde_json::to_string(&spec.input_schema.clone()).unwrap()
+        );
+
         AnthropicTool {
             name: spec.name.clone().into(),
-            description: Some(spec.description.clone().into()),
-            input_schema: Some(spec.input_schema.to_string().into()),
+            description: spec.description.clone().map(|d| d.into()),
+            input_schema: Some(
+                serde_json::to_string(&spec.input_schema.clone())
+                    .unwrap()
+                    .into(),
+            ),
             cache_control: None,
             ..Default::default()
         }

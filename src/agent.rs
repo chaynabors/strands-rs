@@ -47,8 +47,19 @@ impl Agent {
     }
 
     pub fn turn(&mut self) -> ModelProviderStream {
+        let tool_specs = match self.mcp_clients.is_empty() {
+            true => None,
+            false => Some(
+                self.mcp_clients
+                    .iter()
+                    .flat_map(|client| client.tool_specs().to_owned())
+                    .collect(),
+            ),
+        };
+
         let args = StreamArgs {
             system_prompt: Some(self.system_prompt.clone()),
+            tool_specs,
             max_tokens: Some(4096),
             ..Default::default()
         };

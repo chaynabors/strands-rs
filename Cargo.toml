@@ -14,12 +14,14 @@ serde = ["dep:serde"]
 anthropoki = "0.3.0"
 async-stream = "0.3.6"
 futures = { version = "0.3.31" }
-rmcp = { version = "0.3.0", features = ["base64", "client", "macros", "server", "transport-async-rw", "transport-child-process"], default-features = false }
+reqwest = "0.12.24"
+rmcp = { version = "0.10.0", features = ["base64", "client", "macros", "server", "transport-async-rw", "transport-child-process", "transport-streamable-http-client", "transport-streamable-http-client-reqwest"], default-features = false }
 serde = { version = "1.0.228", features = ["derive"], optional = true }
 serde_json = "1.0.145"
+thiserror = "2.0.17"
+tokio = { version = "1.46.1", features = ["rt", "rt-multi-thread", "io-std", "tracing", "fs", "macros"] }
 tracing = "0.1.41"
 
 [dev-dependencies]
 anyhow = "1.0.100"
-tokio = { version = "1.46.1", features = ["rt", "rt-multi-thread", "io-std", "tracing", "fs", "macros"] }
 tracing-subscriber = "0.3.22"

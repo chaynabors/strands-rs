@@ -13,26 +13,52 @@ use crate::{
     },
     model::model_provider::{ModelProvider, ModelProviderStream, StreamArgs, StreamEvent},
     state_provider::StateProvider,
+    tool::Tool,
 };
 
-#[derive(Debug, Default)]
-pub struct AgentArgs {
+pub struct AgentArgs<E> {
     pub system_prompt: Option<SystemPrompt>,
     pub state_provider: Option<Box<dyn StateProvider>>,
     pub mcp_clients: Vec<McpClient>,
     pub messages: Vec<Message>,
+    pub tools: Vec<Box<dyn Tool<E>>>,
 }
 
-pub struct Agent {
+impl<E> std::fmt::Debug for AgentArgs<E> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AgentArgs")
+            .field("system_prompt", &self.system_prompt)
+            .field("state_provider", &"StateProvider")
+            .field("mcp_clients", &self.mcp_clients)
+            .field("messages", &self.messages)
+            .field("tools", &"Tools")
+            .finish()
+    }
+}
+
+impl Default for AgentArgs<()> {
+    fn default() -> Self {
+        Self {
+            system_prompt: None,
+            state_provider: None,
+            mcp_clients: Vec::new(),
+            messages: Vec::new(),
+            tools: Vec::new(),
+        }
+    }
+}
+
+pub struct Agent<E> {
     model_provider: Arc<dyn ModelProvider>,
     system_prompt: SystemPrompt,
     state_provider: Box<dyn StateProvider>,
     mcp_clients: Arc<Vec<McpClient>>,
     messages: Arc<Mutex<Vec<Message>>>,
+    tools: Vec<Box<dyn Tool<E>>>,
 }
 
-impl Agent {
-    pub fn new(model_provider: impl ModelProvider + 'static, args: AgentArgs) -> Self {
+impl<E> Agent<E> {
+    pub fn new(model_provider: impl ModelProvider + 'static, args: AgentArgs<E>) -> Self {
         Self {
             model_provider: Arc::new(model_provider),
             system_prompt: args
@@ -43,23 +69,23 @@ impl Agent {
                 .unwrap_or_else(|| Box::new(HashMap::<String, serde_json::Value>::new())),
             mcp_clients: Arc::new(args.mcp_clients),
             messages: Arc::new(Mutex::new(args.messages)),
+            tools: Vec::new(),
         }
     }
 
     pub fn turn(&mut self) -> ModelProviderStream {
-        let tool_specs = match self.mcp_clients.is_empty() {
-            true => None,
-            false => Some(
-                self.mcp_clients
-                    .iter()
-                    .flat_map(|client| client.tool_specs().to_owned())
-                    .collect(),
-            ),
-        };
+        let mut tool_specs = Vec::with_capacity(self.tools.len());
+        for tool in &self.tools {
+            tool_specs.push(tool.spec());
+        }
+
+        for client in self.mcp_clients.iter() {
+            tool_specs.extend_from_slice(client.tool_specs());
+        }
 
         let args = StreamArgs {
             system_prompt: Some(self.system_prompt.clone()),
-            tool_specs,
+            tool_specs: (!tool_specs.is_empty()).then_some(tool_specs),
             max_tokens: Some(4096),
             ..Default::default()
         };

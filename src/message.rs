@@ -55,6 +55,8 @@ pub struct ToolResultBlock {
     pub content: Result<Vec<ToolResultContent>, Vec<ToolResultContent>>,
 }
 
+pub type ToolResult = Result<Vec<ToolResultContent>, Vec<ToolResultContent>>;
+
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct ReasoningBlock {

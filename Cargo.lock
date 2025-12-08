@@ -1417,6 +1417,7 @@ dependencies = [
  "anthropoki",
  "anyhow",
  "async-stream",
+ "async-trait",
  "futures",
  "reqwest",
  "rmcp",

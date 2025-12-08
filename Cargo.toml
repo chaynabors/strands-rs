@@ -13,6 +13,7 @@ serde = ["dep:serde"]
 [dependencies]
 anthropoki = "0.3.0"
 async-stream = "0.3.6"
+async-trait = "0.1.89"
 futures = { version = "0.3.31" }
 reqwest = "0.12.24"
 rmcp = { version = "0.10.0", features = ["base64", "client", "macros", "server", "transport-async-rw", "transport-child-process", "transport-streamable-http-client", "transport-streamable-http-client-reqwest"], default-features = false }

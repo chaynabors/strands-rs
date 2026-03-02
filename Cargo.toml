@@ -1,0 +1,32 @@
+[package]
+name = "strands-native"
+description = "Native Rust implementation of Strands SDK"
+authors = ["Strands Team Unofficial <nabochay@amazon.com>"]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/chaynabors/strands-rs"
+version = "0.1.0"
+
+[features]
+serde = ["dep:serde"]
+
+[dependencies]
+anthropik = "0.1"
+async-stream = "0.3"
+async-trait = "0.1"
+futures = "0.3"
+rmcp = { version = "0.16", features = ["base64", "client", "macros", "server", "transport-async-rw", "transport-child-process", "transport-streamable-http-client", "transport-streamable-http-client-reqwest"], default-features = false }
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "process", "rt-multi-thread"] }
+tracing = "0.1"
+
+[dev-dependencies]
+anyhow = "1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[lints.rust]
+future_incompatible = "warn"
+nonstandard_style = "warn"
+rust_2018_idioms = "warn"
